@@ -1,0 +1,147 @@
+[
+ {
+  "input": {
+   "window_start": null,
+   "free_used": 0,
+   "paid_used": 0,
+   "verified_spend": 0,
+   "reports_used": 0,
+   "paid_blocked": false,
+   "now": 1000.0,
+   "unlimited": false
+  },
+  "expected": {
+   "unlimited": false,
+   "free_limit": 10,
+   "paid_limit": 15,
+   "free_used": 0,
+   "paid_used": 0,
+   "free_remaining": 10,
+   "paid_remaining": 15,
+   "total_remaining": 25,
+   "window_seconds": 20400,
+   "window_start": null,
+   "resets_at": null,
+   "now": 1000.0,
+   "verified_spend": 0,
+   "reports_used": 0,
+   "paid_blocked": false
+  }
+ },
+ {
+  "input": {
+   "window_start": 1000.0,
+   "free_used": 4,
+   "paid_used": 3,
+   "verified_spend": 60,
+   "reports_used": 1,
+   "paid_blocked": false,
+   "now": 5000.0,
+   "unlimited": false
+  },
+  "expected": {
+   "unlimited": false,
+   "free_limit": 10,
+   "paid_limit": 15,
+   "free_used": 4,
+   "paid_used": 3,
+   "free_remaining": 6,
+   "paid_remaining": 12,
+   "total_remaining": 18,
+   "window_seconds": 19788,
+   "window_start": 1000.0,
+   "resets_at": 20788.0,
+   "now": 5000.0,
+   "verified_spend": 60,
+   "reports_used": 1,
+   "paid_blocked": false
+  }
+ },
+ {
+  "input": {
+   "window_start": 1000.0,
+   "free_used": 10,
+   "paid_used": 15,
+   "verified_spend": 150,
+   "reports_used": 2,
+   "paid_blocked": true,
+   "now": 20175.0,
+   "unlimited": false
+  },
+  "expected": {
+   "unlimited": false,
+   "free_limit": 10,
+   "paid_limit": 15,
+   "free_used": 10,
+   "paid_used": 15,
+   "free_remaining": 0,
+   "paid_remaining": 0,
+   "total_remaining": 0,
+   "window_seconds": 19176,
+   "window_start": 1000.0,
+   "resets_at": 20176.0,
+   "now": 20175.0,
+   "verified_spend": 150,
+   "reports_used": 2,
+   "paid_blocked": true
+  }
+ },
+ {
+  "input": {
+   "window_start": 1000.0,
+   "free_used": 10,
+   "paid_used": 15,
+   "verified_spend": 150,
+   "reports_used": 2,
+   "paid_blocked": true,
+   "now": 20176.0,
+   "unlimited": true
+  },
+  "expected": {
+   "unlimited": true,
+   "free_limit": 10,
+   "paid_limit": 15,
+   "free_used": 0,
+   "paid_used": 0,
+   "free_remaining": 10,
+   "paid_remaining": 15,
+   "total_remaining": 25,
+   "window_seconds": 19176,
+   "window_start": null,
+   "resets_at": null,
+   "now": 20176.0,
+   "verified_spend": 150,
+   "reports_used": 2,
+   "paid_blocked": true
+  }
+ },
+ {
+  "input": {
+   "window_start": 1000.0,
+   "free_used": 7,
+   "paid_used": 2,
+   "verified_spend": 50,
+   "reports_used": 0,
+   "paid_blocked": false,
+   "now": 21400.0,
+   "unlimited": false
+  },
+  "expected": {
+   "unlimited": false,
+   "free_limit": 10,
+   "paid_limit": 15,
+   "free_used": 0,
+   "paid_used": 0,
+   "free_remaining": 10,
+   "paid_remaining": 15,
+   "total_remaining": 25,
+   "window_seconds": 20400,
+   "window_start": null,
+   "resets_at": null,
+   "now": 21400.0,
+   "verified_spend": 50,
+   "reports_used": 0,
+   "paid_blocked": false
+  }
+ }
+]

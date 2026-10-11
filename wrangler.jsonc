@@ -1,0 +1,61 @@
+{
+  // Auto ML backend (App 2): the API Worker. Auth, sessions, uploads (R2), payments and state (D1), rate limits.
+  // The React app (App 1, ../frontend) forwards /api/* here through a service binding, so cookies stay first-party.
+  // The Python ML service (App 3, ../ml-service) is called through the ML_SERVICE binding (or ENGINE_URL as a fallback).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "auto-ml-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "auto-ml-db",
+      "database_id": "00000000-0000-0000-0000-000000000000", // replaced by scripts/setup-cloudflare.sh
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "auto-ml-files" }],
+  "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
+
+  "durable_objects": { "bindings": [{ "name": "LIMITER", "class_name": "RateLimiter" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["RateLimiter"] }],
+
+  // Cloudflare's built-in per-location limiter: no extra hop, used for the broad per-user / per-IP request cap.
+  "ratelimits": [{ "name": "API_LIMITER", "namespace_id": "1001", "simple": { "limit": 300, "period": 60 } }],
+
+  // Background e-mail (verification, reset): the request returns at once, delivery retries up to 3 times.
+  // Needs the queue to exist: npx wrangler queues create auto-ml-mail  (scripts/setup-cloudflare.sh does it).
+  "queues": {
+    "producers": [{ "binding": "MAIL_QUEUE", "queue": "auto-ml-mail" }],
+    "consumers": [{ "queue": "auto-ml-mail", "max_batch_size": 10, "max_batch_timeout": 5, "max_retries": 3 }]
+  },
+
+  // The Python ML service. FREE setup: it runs on a free host and is reached through ENGINE_URL (below).
+  // scripts/prod-setup.mjs switches this line on only for HOSTING=cloudflare (paid Containers).
+  // "services": [{ "binding": "ML_SERVICE", "service": "auto-ml-ml" }],
+
+  // 03:17 UTC daily cleanup of expired files, sessions and tokens; every 10 minutes a tiny ping that keeps the free ML host awake.
+  "triggers": { "crons": ["17 3 * * *", "*/10 * * * *"] },
+
+  "vars": {
+    "APP_ENV": "production",
+    "PUBLIC_APP_URL": "https://auto-ml-web.YOUR-SUBDOMAIN.workers.dev", // the FRONTEND url (e-mail links, allowed origin)
+    "ENGINE_URL": "", // only when ML_SERVICE is not used (for example a Cloud Run URL)
+    "ADMIN_EMAILS": "karthifde@gmail.com",
+    "GOOGLE_CLIENT_ID": "",
+    "RETENTION_DAYS": "15",
+    "MAX_UPLOAD_MB": "25",
+    "PBKDF2_ITERATIONS": "100000",
+    "MAIL_FROM": "Auto ML <onboarding@resend.dev>"
+  }
+
+  // Secrets (never put these here). Set each with:  npx wrangler secret put NAME
+  //   JWT_SECRET        random 48+ chars, signs the short-lived access cookie
+  //   PASSWORD_PEPPER   random 32+ chars, mixed into every password hash
+  //   GATEWAY_SECRET    shared with the Python engine (Worker -> engine identity signature)
+  //   STORE_SECRET      shared with the Python engine (engine -> Worker state API signature)
+  //   RESEND_API_KEY    optional, for verification / reset / payment emails
+}

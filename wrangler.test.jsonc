@@ -1,0 +1,15 @@
+{
+  // Used only by vitest: the same bindings as wrangler.jsonc, without the ML_SERVICE service binding
+  // (there is no second Worker to bind to inside the test runtime; tests mock the engine's HTTP API instead).
+  "name": "auto-ml-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [{ "binding": "DB", "database_name": "auto-ml-db", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }],
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "auto-ml-files" }],
+  "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
+  "durable_objects": { "bindings": [{ "name": "LIMITER", "class_name": "RateLimiter" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["RateLimiter"] }],
+  "ratelimits": [{ "name": "API_LIMITER", "namespace_id": "1001", "simple": { "limit": 300, "period": 60 } }],
+  "queues": { "producers": [{ "binding": "MAIL_QUEUE", "queue": "auto-ml-mail" }] }
+}
